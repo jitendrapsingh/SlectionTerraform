@@ -7,7 +7,6 @@ properties([  parameters([
   string (defaultValue: '', description: 'Please type Role Name', name: 'IAM_Role', trim: false),
   string (defaultValue: '', description: 'Please type correct Tag name of EC2/RDS', name: 'selection_tag', trim: false),
   string (defaultValue: '', description: 'Please type Resource Name', name: 'Resource_Name', trim: false),
-  string (defaultValue: '', description: 'Please type Backup URL', name: 'Backup_URL', trim: false),
   string (defaultValue: '', description: 'Please type SNS ARN', name: 'SNS_ARN', trim: false),
   booleanParam(name: 'APPLY_CHANGES', defaultValue: false, description: 'If not opted, it will be dry run')
  
@@ -32,7 +31,7 @@ pipeline {
                 terraform init'''
             }
         }
-		 stage('Setup Env')') {
+		 stage('Setup Env') {
             steps {
     		  script {
 			      currentBuild.displayName = "#${params.APPLY_CHANGES ? 'Apply (Create Resources)' : 'Plan (Dry Run)' }"
