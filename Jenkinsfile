@@ -1,4 +1,3 @@
-
 properties([  parameters([
   credentials (credentialType: 'com.cloudbees.jenkins.plugins.awscredentials.AWSCredentialsImpl', defaultValue: '', description: '', name: 'CREDENTIALS', required: false), choice (choices: ['us-east-1', 'us-west-2 ', 'eu-west-1'], description: 'Please Choose your Region', name: 'REGION'),
   string (defaultValue: '', description: 'Please type the new Plan Name', name: 'Plan_Name', trim: false),
@@ -11,8 +10,8 @@ properties([  parameters([
   string (defaultValue: '', description: 'Please type SNS ARN', name: 'SNS_ARN', trim: false),
   booleanParam(name: 'APPLY_CHANGES', defaultValue: false, description: 'If not opted, it will be dry run')
  
-  
-  
+ 
+ 
    ])
 ])
 pipeline {
@@ -27,47 +26,47 @@ pipeline {
         stage('terrafrom  init'){
             steps{
                 sh '''
-		set +x
+set +x
                 PATH=/usr/local/bin
                 terraform init'''
             }
         }
-		 stage('Setup Env') {
+stage('Setup Env') {
             steps {
-    		  script {
-			      currentBuild.displayName = "#${params.APPLY_CHANGES ? 'Apply (Create Resources)' : 'Plan (Dry Run)' }"
-				  currentBuild.description = "${params.APPLY_CHANGES ? 'Apply (Create Resources)' : 'Plan (Dry run)' }"
-			  
+     script {
+     currentBuild.displayName = "#${params.APPLY_CHANGES ? 'Apply (Create Resources)' : 'Plan (Dry Run)' }"
+ currentBuild.description = "${params.APPLY_CHANGES ? 'Apply (Create Resources)' : 'Plan (Dry run)' }"
+ 
                 }
            }
-		  }
-        
+ }
+       
         stage('terraform plan') {
             steps {
-    		  withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', 
-			  accessKeyVariable: 'ACCESS_KEY', 
-			  credentialsId: CREDENTIALS, 
-			  secretKeyVariable: 'SECRET_KEY']]) {
-			  if (params.APPLY_CHANGES == 'true') {
-			  then
-			  sh '''
-			  set +x
-			  PATH=/usr/local/bin
-			  terraform apply --auto-approve -var "REGION=$REGION" -var "ACCESS_KEY=$ACCESS_KEY" -var "SECRET_KEY=$SECRET_KEY" -var "Plan_Name=$Plan_Name" -var "VAULT_NAME=$VAULT_NAME" -var "Rule_Name=$Rule_Name" -var "IAM_Role=$IAM_Role" -var "selection_tag=$selection_tag" -var "Resource_Name=$Resource_Name"
-             }else{
-			     terraform plan   -var "REGION=$REGION" -var "ACCESS_KEY=$ACCESS_KEY" -var "SECRET_KEY=$SECRET_KEY" -var "Plan_Name=$Plan_Name" -var "VAULT_NAME=$VAULT_NAME" -var "Rule_Name=$Rule_Name" -var "IAM_Role=$IAM_Role" -var "selection_tag=$selection_tag" -var "Resource_Name=$Resource_Name"'''
-			 }
+     withCredentials([[$class: 'AmazonWebServicesCredentialsBinding',
+ accessKeyVariable: 'ACCESS_KEY',
+ credentialsId: CREDENTIALS,
+ secretKeyVariable: 'SECRET_KEY']]) {
+ if (params.APPLY_CHANGES == 'true') {
+ sh '''
+ set +x
+ PATH=/usr/local/bin
+ terraform apply --auto-approve -var "REGION=$REGION" -var "ACCESS_KEY=$ACCESS_KEY" -var "SECRET_KEY=$SECRET_KEY" -var "Plan_Name=$Plan_Name" -var "VAULT_NAME=$VAULT_NAME" -var "Rule_Name=$Rule_Name" -var "IAM_Role=$IAM_Role" -var "selection_tag=$selection_tag" -var "Resource_Name=$Resource_Name" '''
+             }
+else{
+ sh ''' terraform plan   -var "REGION=$REGION" -var "ACCESS_KEY=$ACCESS_KEY" -var "SECRET_KEY=$SECRET_KEY" -var "Plan_Name=$Plan_Name" -var "VAULT_NAME=$VAULT_NAME" -var "Rule_Name=$Rule_Name" -var "IAM_Role=$IAM_Role" -var "selection_tag=$selection_tag" -var "Resource_Name=$Resource_Name"'''
+}
            }
          }
-		 }  
-      
-	 
+}  
+     
+
   }
-		  
-	post { 
-        always { 
+ 
+post {
+        always {
             cleanWs()
-        
+       
     }
  }
 }
